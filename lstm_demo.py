@@ -1,10 +1,10 @@
 import numpy as np
 import tensorflow as tf
-import batch_method
+from process_batch import *
 
-TRAIN_DATA = 'ptb.train'
-EVAL_DATA = 'ptb.valid'
-TEST_DATA = 'ptb.test'
+TRAIN_DATA = './simple-examples/data/train_data_index.txt'
+EVAL_DATA = './simple-examples/data/valid_data_index.txt'
+TEST_DATA = './simple-examples/data/test_data_index.txt'
 
 HIDDEN_SIZE = 300
 NUM_LAYERS = 2
@@ -48,26 +48,27 @@ class PTBModel(object):
                 if time_step > 0:
                     tf.get_variable_scope().reuse_variables()
                 cell_output, state = cell(inputs[:, time_step, :], state)
-                outputs = tf.reshape(tf.concat(outputs, 1), [-1, HIDDEN_SIZE])
+                outputs.append(cell_output)
+        outputs = tf.reshape(tf.concat(outputs, 1), [-1, HIDDEN_SIZE])
 
-                if SHARE_EMB_AND_SOFTMAX:
-                    weight = tf.transpose(embedding)
-                else:
-                    weight = tf.get_variable('weight', [HIDDEN_SIZE, VOCAB_SIZE])
-                bias = tf.get_variable('bias', [VOCAB_SIZE])
-                logits = tf.matmul(outputs, weight) + bias
+        if SHARE_EMB_AND_SOFTMAX:
+            weight = tf.transpose(embedding)
+        else:
+            weight = tf.get_variable('weight', [HIDDEN_SIZE, VOCAB_SIZE])
+        bias = tf.get_variable('bias', [VOCAB_SIZE])
+        logits = tf.matmul(outputs, weight) + bias
 
-                loss = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=tf.reshape(self.targets, [-1]), logits=logits)
-                self.cost = tf.reduce_sum(loss)/batch_size
-                self.final_state = state
+        loss = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=tf.reshape(self.targets, [-1]), logits=logits)
+        self.cost = tf.reduce_sum(loss)/batch_size
+        self.final_state = state
 
-                if not is_training:
-                    return
+        if not is_training:
+            return
 
-                trainable_variables = tf.trainable_variables()
-                grads, _ = tf.clip_by_global_norm(tf.gradients(self.cost, trainable_variables), MAX_GRAD_NORM)
-                optimizer = tf.train.GradientDescentOptimizer(learning_rate=1.0)
-                self.train_op = optimizer.apply_gradients(zip(grads, trainable_variables))
+        trainable_variables = tf.trainable_variables()
+        grads, _ = tf.clip_by_global_norm(tf.gradients(self.cost, trainable_variables), MAX_GRAD_NORM)
+        optimizer = tf.train.GradientDescentOptimizer(learning_rate=1.0)
+        self.train_op = optimizer.apply_gradients(zip(grads, trainable_variables))
 
 
 def run_epoch(session, model, batches, train_op, output_log, step):
@@ -97,4 +98,20 @@ def main():
 
     with tf.Session() as session:
         tf.global_variables_initializer().run()
-        train_batches = batch_method()
+        train_batches = make_batches(read_data(TRAIN_DATA), TRAIN_BATCH_SIZE, TRAIN_NUM_STEP)
+        eval_batches = make_batches(read_data(EVAL_DATA), EVAL_BATCH_SIZE, EVAL_NUM_STEP)
+        test_batches = make_batches(read_data(TEST_DATA), EVAL_BATCH_SIZE, EVAL_NUM_STEP)
+
+        step = 0
+
+        for i in range(NUM_EPOCH):
+            print('In iteration: %d' % (i+1))
+            step, train_pplx = run_epoch(session, train_model, train_batches, train_model.train_op, True, step)
+            print('Epoch: %d Train Perplexity: %.3f' % (i+1, train_pplx))
+
+        _, test_pplx = run_epoch(session, eval_model, test_batches, tf.no_op(), False, 0)
+        print('Test Perplexity: %.3f' % test_pplx)
+
+
+if __name__ == '__main__':
+    main()

@@ -25,6 +25,7 @@ def generate_trian_data(TRAIN_DATA=TRAIN_DATA, TRAIN_BATCH_SIZE=TRAIN_BATCH_SIZE
     return list(zip(train_data, label))
 
 
+
 def main():
     train_batches = generate_trian_data(TRAIN_DATA=TRAIN_DATA, TRAIN_BATCH_SIZE=TRAIN_BATCH_SIZE, TRAIN_NUM_STEP=TRAIN_NUM_STEP)
     print(train_batches)

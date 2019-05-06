@@ -20,3 +20,10 @@ sorted_words = ['<eos>'] + sorted_words
 with codecs.open(VOCAB_OUTPUT, 'w', 'utf-8') as f:
     for word in sorted_words:
         f.write(word + '\n')
+
+
+def read_data(file_path):
+    with open(file_path, 'r') as fin:
+        id_string = ' '.join([line.strip() for line in fin.readlines()])
+    id_list = [int(w) for w in id_string.split()]
+    return id_list

@@ -3,8 +3,15 @@ import sys
 
 VOCAB_PATH = './simple-examples/data/ptb.vocab'
 RAW_TRAIN_DATA = './simple-examples/data/ptb.train.txt'
-
 TRAIN_DATA = './simple-examples/data/train_data_index.txt'
+
+RAW_TRAIN_DATA = './simple-examples/data/ptb.test.txt'
+TRAIN_DATA = './simple-examples/data/test_data_index.txt'
+
+
+RAW_TRAIN_DATA = './simple-examples/data/ptb.valid.txt'
+TRAIN_DATA = './simple-examples/data/valid_data_index.txt'
+
 
 with codecs.open(VOCAB_PATH, 'r', 'utf-8') as f:
     vocab = f.readlines()
