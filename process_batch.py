@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-TRAIN_DATA = 'ptb.train'
+TRAIN_DATA = './simple-examples/data/train_data_index.txt'
 TRAIN_BATCH_SIZE = 20
 TRAIN_NUM_STEP = 35
 
@@ -28,6 +28,7 @@ def make_batches(id_list, batch_size, num_step):
 
 def main():
     train_batches = make_batches(read_data(TRAIN_DATA), TRAIN_BATCH_SIZE, TRAIN_NUM_STEP)
+    pass
 
 
 if __name__ == '__main__':

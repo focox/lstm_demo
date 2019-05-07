@@ -65,8 +65,10 @@ class PTBModel(object):
         if not is_training:
             return
 
+        # 针对rnn梯度消失或爆炸的情况，对处理梯度而采用的方法
         trainable_variables = tf.trainable_variables()
         grads, _ = tf.clip_by_global_norm(tf.gradients(self.cost, trainable_variables), MAX_GRAD_NORM)
+        # Todo: 这里的 MAX_GRAD_NORM 即：clip_norm 如何取值
         optimizer = tf.train.GradientDescentOptimizer(learning_rate=1.0)
         self.train_op = optimizer.apply_gradients(zip(grads, trainable_variables))
 
