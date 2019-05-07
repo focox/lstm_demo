@@ -78,6 +78,7 @@ class PTBModel:
         cliped_gradients, _ = tf.clip_by_global_norm(gradients, MAX_GRAD_NORM)
 
         optimizer = tf.train.AdamOptimizer()
+        # optimizer = tf.train.GradientDescentOptimizer(learning_rate=1.0)
         self.train_op = optimizer.apply_gradients(zip(cliped_gradients, trainable_variables))
 
     def train(self):
@@ -89,13 +90,17 @@ class PTBModel:
             sess.run(tf.global_variables_initializer())
             state = sess.run(self._initial_state)
             step = 0
+            iters = 0
+            total_costs = 0.0
             for epoch in range(NUM_EPOCHS):
                 print('Epoch', epoch + 1)
                 for x, y in train_batch:
                     _, loss, state = sess.run([self.train_op, self.loss, self.final_state], feed_dict={self.x: x, self.y: y, self._initial_state: state})
+                    total_costs += loss
+                    iters += TRAIN_NUM_STEPS
                     # print(loss)
                     if step % 100 == 0:
-                        print('After %d step(s), the loss on train batch is %g' % (step + 1, loss))
+                        print('After %d step(s), the loss on train batch is %g' % (step + 1, np.exp(total_costs/iters)))
                     step += 1
 
 
