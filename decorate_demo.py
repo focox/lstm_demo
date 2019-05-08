@@ -21,20 +21,47 @@ def add(x, y):
 
 # add(1, 2)
 
-
+import functools
 def mention(fun):
     def wrapper(*args, **kwargs):
         print('ICBC welcome you.')
         print('ICBC:', fun(*args, **kwargs))
+        print('====>>', fun.__name__)
     return wrapper
 
 
 @mention
 def add(*args, **kwargs):
     print('args:', args, '\n*args', *args)
-    return sum(args)
+    print('kwargs:', kwargs, '\n**kwargs:', **kwargs)
+    # return sum(args, [i for i in kwargs])
+    return(sum(i for i in kwargs))
 
 
-add(100, 20, 30, 50, 100)
+# add({1:2, 2:3})
+
+
+
+import functools
+def mention(arg):
+    def real_mention(fun):
+        # @functools.wraps(fun)
+        def wrapper(*args, **kwargs):
+            print('ICBC welcome you.')
+            print('ICBC:', fun(*args, **kwargs))
+            print('====>>', fun.__name__)
+        return wrapper
+    return real_mention
+
+@mention('test')
+def add(*args, **kwargs):
+    print('args:', args, '\n*args', *args)
+    print('kwargs:', kwargs, '\n**kwargs:', **kwargs)
+    # return sum(args, [i for i in kwargs])
+    return(sum(i for i in kwargs))
+
+
+add({1:2})
+
 
 
