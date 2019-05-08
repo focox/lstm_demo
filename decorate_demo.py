@@ -1,28 +1,40 @@
-from __future__ import print_function
-import time
+from time import time
 
 
-def timetest(input_func):
-
-    def timed(*args, **kwargs):
-
-        start_time = time.time()
-        result = input_func(*args, **kwargs)
-        end_time = time.time()
-        print("Method Name - {0}, Args - {1}, Kwargs - {2}, Execution Time - {3}".format(
-            input_func.__name__,
-            args,
-            kwargs,
-            end_time - start_time
-        ))
-        return result
-    return timed
+def print_time(arg):
+    def f_dec(fun):
+        def t_dec(x, y):
+            print('**'*10, time())
+            print(arg)
+            return fun(x, y)
+        return t_dec
+    return f_dec
 
 
-@timetest
-def foobar(*args, **kwargs):
-    time.sleep(0.3)
-    print("inside foobar")
-    print(args, kwargs)
+# add = print_time('there you go')(add)
+# add = f_dec(add)
+# add = t_dec
+# add(x, y) = t_dec(x, y)
+@print_time('there you go')
+def add(x, y):
+    print(x+y)
 
-foobar(["hello, world"], foo=2, bar=5)
+# add(1, 2)
+
+
+def mention(fun):
+    def wrapper(*args, **kwargs):
+        print('ICBC welcome you.')
+        print('ICBC:', fun(*args, **kwargs))
+    return wrapper
+
+
+@mention
+def add(*args, **kwargs):
+    print('args:', args, '\n*args', *args)
+    return sum(args)
+
+
+add(100, 20, 30, 50, 100)
+
+
